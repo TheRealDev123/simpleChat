@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Simple Chat</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+  <style>
+    :root {
+      --gm-bg: #f8fafd;
+      --gm-surface: #ffffff;
+      --gm-primary: #0b57d0;
+      --gm-primary-container: #c2e7ff;
+      --gm-bubble-in: #ffffff;
+      --gm-bubble-out: #c2e7ff;
+      --gm-text-main: #1f1f1f;
+      --gm-text-secondary: #5e5e5e;
+      --gm-border: #e3e3e3;
+      --gm-danger: #ba1a1a;
+      --gm-success: #137333;
+      --gm-check-blue: #0b57d0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Google Sans', 'Roboto', sans-serif; -webkit-tap-highlight-color: transparent; }
+    
+    html, body {
+      height: 100%;
+      height: 100dvh;
+      background-color: var(--gm-bg);
+      color: var(--gm-text-main);
+      overflow: hidden;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* TOP HEADER */
+    .app-header {
+      width: 100%;
+      height: 60px;
+      background: var(--gm-surface);
+      border-bottom: 1px solid var(--gm-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 50;
+      flex-shrink: 0;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #e8f0fe;
+      color: var(--gm-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 500;
+      color: var(--gm-text-main);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.72rem;
+      background: #e6f4ea;
+      color: var(--gm-success);
+      padding: 2px 8px;
+      border-radius: 12px;
+      margin-left: 6px;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gm-success);
+    }
+
+    /* AUTH SCREEN */
+    #authBox {
+      width: 92%;
+      max-width: 400px;
+      background: white;
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      border: 1px solid var(--gm-border);
+      text-align: center;
+      margin: auto;
+    }
+
+    .auth-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--gm-border);
+      margin: 18px 0;
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 10px;
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--gm-text-secondary);
+      border-bottom: 2px solid transparent;
+    }
+
+    .auth-tab.active {
+      color: var(--gm-primary);
+      border-bottom: 2px solid var(--gm-primary);
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--gm-border);
+      border-radius: 14px;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    .input-field:focus { border-color: var(--gm-primary); }
+
+    .btn-submit {
+      width: 100%;
+      padding: 12px;
+      background: var(--gm-primary);
+      color: white;
+      border: none;
+      border-radius: 24px;
+      font-weight: 500;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    /* MAIN APP LAYOUT */
+    #appBox {
+      display: none;
+      width: 100%;
+      height: calc(100% - 60px);
+      max-width: 1100px;
+      position: relative;
+    }
+
+    .app-layout {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      background: var(--gm-surface);
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 360px;
+      border-right: 1px solid var(--gm-border);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      background: var(--gm-surface);
+    }
+
+    .tabs-bar {
+      display: flex;
+      background: var(--gm-bg);
+      padding: 6px 12px;
+      border-bottom: 1px solid var(--gm-border);
+    }
+
+    .tab-pill {
+      flex: 1;
+      padding: 8px;
+      text-align: center;
+      font-size: 0.88rem;
+      font-weight: 500;
+      border-radius: 16px;
+      cursor: pointer;
+      color: var(--gm-text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .tab-pill.active {
+      background: white;
+      color: var(--gm-primary);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    .badge {
+      background: var(--gm-danger);
+      color: white;
+      font-size: 0.72rem;
+      padding: 1px 6px;
+      border-radius: 10px;
+    }
+
+    .list-view { flex: 1; overflow-y: auto; }
+
+    .list-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      border-bottom: 1px solid #f4f4f4;
+    }
+
+    .list-card:hover { background: var(--gm-bg); }
+    .list-card.active { background: #e8f0fe; }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.95rem;
+      flex-shrink: 0;
+    }
+
+    .card-info { flex: 1; min-width: 0; }
+    .card-title { font-weight: 500; font-size: 0.95rem; }
+    .card-sub { font-size: 0.8rem; color: var(--gm-text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .sidebar-actions {
+      padding: 10px 14px;
+      display: flex;
+      gap: 8px;
+      border-top: 1px solid var(--gm-border);
+      background: var(--gm-surface);
+    }
+
+    .pill-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 9px;
+      border-radius: 20px;
+      border: 1px solid var(--gm-border);
+      background: var(--gm-bg);
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 500;
+    }
+
+    .pill-btn:hover { background: #e8f0fe; border-color: var(--gm-primary); color: var(--gm-primary); }
+
+    /* CHAT CONVERSATION PANE */
+    .chat-pane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      background: var(--gm-bg);
+      position: relative;
+    }
+
+    .chat-header {
+      padding: 10px 16px;
+      background: white;
+      border-bottom: 1px solid var(--gm-border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      height: 58px;
+      flex-shrink: 0;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .msg-wrap {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .msg-wrap.out { justify-content: flex-end; }
+    .msg-box { max-width: 75%; display: flex; flex-direction: column; }
+    .msg-wrap.out .msg-box { align-items: flex-end; }
+    
+    .msg-sender { font-size: 0.72rem; color: var(--gm-text-secondary); margin-bottom: 2px; margin-left: 10px; }
+    
+    .msg-text-bubble {
+      padding: 9px 14px;
+      border-radius: 20px;
+      font-size: 0.95rem;
+      word-break: break-word;
+      line-height: 1.4;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .msg-wrap.in .msg-text-bubble {
+      background: var(--gm-bubble-in);
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+      color: var(--gm-text-main);
+    }
+    
+    .msg-wrap.out .msg-text-bubble {
+      background: var(--gm-bubble-out);
+      color: #001d35;
+      border-bottom-right-radius: 4px;
+    }
+
+    .msg-meta {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 3px;
+      margin-top: 2px;
+      font-size: 0.68rem;
+      color: var(--gm-text-secondary);
+    }
+
+    /* WHATSAPP STYLE CHECKMARKS */
+    .check-icon {
+      font-size: 15px !important;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+
+    .check-icon.single {
+      color: #74777f; /* Grey single check for sent */
+    }
+
+    .check-icon.double {
+      color: var(--gm-check-blue); /* Google blue double check for saved */
+      font-weight: bold;
+    }
+
+    /* BOTTOM INPUT */
+    .chat-input-bar {
+      padding: 10px 14px;
+      background: white;
+      border-top: 1px solid var(--gm-border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .input-pill {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      background: var(--gm-bg);
+      border-radius: 28px;
+      padding: 4px 14px;
+      border: 1px solid var(--gm-border);
+    }
+
+    .input-pill input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 0.95rem;
+      padding: 6px 0;
+    }
+
+    .send-fab {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--gm-primary);
+      color: white;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .empty-chat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--gm-text-secondary);
+      text-align: center;
+      padding: 20px;
+    }
+
+    .empty-chat span { font-size: 56px; color: #b0c4de; margin-bottom: 8px; }
+
+    /* MODALS */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 16px;
+    }
+
+    .modal-card {
+      background: white;
+      width: 100%;
+      max-width: 380px;
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    /* MOBILE FULLSCREEN */
+    @media (max-width: 768px) {
+      .app-header { height: 56px; padding: 0 12px; }
+      #appBox { height: calc(100% - 56px); }
+      .sidebar { width: 100%; }
+      .chat-pane { display: none; width: 100%; }
+      .chat-pane.mobile-open { display: flex; }
+      .sidebar.mobile-hide { display: none; }
+      .back-btn { display: flex !important; }
+    }
+
+    .back-btn {
+      display: none;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .action-btn-sm {
+      padding: 5px 12px;
+      border-radius: 12px;
+      border: none;
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .btn-blue { background: #c2e7ff; color: #001d35; }
+    .btn-red { background: #fce8e6; color: var(--gm-danger); }
+  </style>
+</head>
+<body>
+
+  <!-- TOP HEADER -->
+  <header class="app-header">
+    <div class="header-brand">
+      <div class="brand-icon">
+        <span class="material-symbols-outlined" style="font-size:22px;">chat</span>
+      </div>
+      <div class="brand-title">Simple Chat</div>
+      <div class="status-pill"><span class="status-dot"></span> Google Sheets</div>
+    </div>
+    <div id="headerUserActions" style="display:none; align-items:center; gap:10px;">
+      <span id="headerUsername" style="font-size:0.85rem; font-weight:500;">User</span>
+      <button onclick="logout()" title="Logout" style="background:transparent; border:none; cursor:pointer; color:var(--gm-text-secondary);">
+        <span class="material-symbols-outlined">logout</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- AUTH SCREEN -->
+  <div id="authBox">
+    <h2>Welcome</h2>
+    <p style="font-size:0.85rem; color:var(--gm-text-secondary); margin-top:4px;">Sign in or create your account</p>
+
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchAuthTab('login')">Sign In</div>
+      <div class="auth-tab" onclick="switchAuthTab('reg')">Sign Up</div>
+    </div>
+
+    <!-- Login -->
+    <div id="loginForm">
+      <input type="text" id="loginId" class="input-field" placeholder="Username or Email" />
+      <input type="password" id="loginPass" class="input-field" placeholder="Password" />
+      <button class="btn-submit" id="loginBtn" onclick="doLogin()">Sign In</button>
+    </div>
+
+    <!-- Register -->
+    <div id="regForm" style="display:none;">
+      <input type="text" id="regUser" class="input-field" placeholder="Choose a Username" />
+      <input type="email" id="regEmail" class="input-field" placeholder="Email Address" />
+      <input type="password" id="regPass" class="input-field" placeholder="Create a Password" />
+      <button class="btn-submit" id="regBtn" onclick="doRegister()">Create Account</button>
+    </div>
+  </div>
+
+  <!-- MAIN APP CONTAINER -->
+  <div id="appBox">
+    <div class="app-layout">
+      
+      <!-- SIDEBAR -->
+      <aside class="sidebar" id="sidebar">
+        <div class="tabs-bar">
+          <div class="tab-pill active" id="tabChatsBtn" onclick="setTab('chats')">
+            <span class="material-symbols-outlined" style="font-size:18px;">forum</span> Chats
+          </div>
+          <div class="tab-pill" id="tabContactsBtn" onclick="setTab('contacts')">
+            <span class="material-symbols-outlined" style="font-size:18px;">people</span> Contacts
+            <span class="badge" id="reqBadge" style="display:none;">0</span>
+          </div>
+        </div>
+
+        <div class="list-view" id="mainListView"></div>
+
+        <div class="sidebar-actions">
+          <button class="pill-btn" onclick="openModal('addContactModal')">
+            <span class="material-symbols-outlined" style="font-size:18px;">person_add</span> Add Contact
+          </button>
+          <button class="pill-btn" onclick="openNewGroupModal()">
+            <span class="material-symbols-outlined" style="font-size:18px;">group_add</span> New Group
+          </button>
+        </div>
+      </aside>
+
+      <!-- CHAT PANE -->
+      <main class="chat-pane" id="chatPane">
+        <div class="empty-chat" id="emptyChatPlaceholder">
+          <span class="material-symbols-outlined">chat_bubble_outline</span>
+          <h3>No Conversation Selected</h3>
+          <p style="font-size:0.85rem; margin-top:4px;">Select a chat or add a contact to start messaging.</p>
+        </div>
+
+        <div id="chatInterface" style="display:none; flex-direction:column; height:100%;">
+          <div class="chat-header">
+            <button class="back-btn" onclick="closeChatMobile()">
+              <span class="material-symbols-outlined">arrow_back</span>
+            </button>
+            <div class="avatar" id="roomAvatar" style="background:#0b57d0; width:34px; height:34px; font-size:0.85rem;">#</div>
+            <div style="flex:1; min-width:0;">
+              <div style="font-weight:600; font-size:0.95rem;" id="roomTitle">Conversation</div>
+              <div style="font-size:0.75rem; color:var(--gm-text-secondary);" id="roomSubtitle">...</div>
+            </div>
+          </div>
+
+          <div class="chat-messages" id="chatMessages"></div>
+
+          <div class="chat-input-bar">
+            <div class="input-pill">
+              <input type="text" id="chatTextInput" placeholder="Text message..." onkeydown="if(event.key==='Enter') sendCurrentMessage()" />
+            </div>
+            <button class="send-fab" onclick="sendCurrentMessage()">
+              <span class="material-symbols-outlined" style="font-size:20px;">send</span>
+            </button>
+          </div>
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <!-- MODAL: ADD CONTACT -->
+  <div class="modal" id="addContactModal">
+    <div class="modal-card">
+      <h3 style="margin-bottom:8px;">Add Contact</h3>
+      <p style="font-size:0.85rem; color:var(--gm-text-secondary); margin-bottom:12px;">Enter the exact username or email of the user:</p>
+      <input type="text" id="contactSearchInput" class="input-field" placeholder="Username or Email" />
+      <div class="modal-actions">
+        <button class="pill-btn" style="flex:none; padding:6px 14px;" onclick="closeModal('addContactModal')">Cancel</button>
+        <button class="btn-submit" style="width:auto; padding:6px 18px;" onclick="sendContactReq()">Send Request</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CREATE GROUP -->
+  <div class="modal" id="newGroupModal">
+    <div class="modal-card">
+      <h3 style="margin-bottom:8px;">New Group Chat</h3>
+      <input type="text" id="groupNameInput" class="input-field" placeholder="Group Name" />
+      <p style="font-size:0.85rem; color:var(--gm-text-secondary); margin-bottom:6px;">Select Contacts:</p>
+      <div id="groupCheckList" style="max-height:160px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-bottom:12px;"></div>
+      <div class="modal-actions">
+        <button class="pill-btn" style="flex:none; padding:6px 14px;" onclick="closeModal('newGroupModal')">Cancel</button>
+        <button class="btn-submit" style="width:auto; padding:6px 18px;" onclick="createGroup()">Create Group</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // PRE-CONFIGURED APPS SCRIPT URL
+    const API_URL = "https://script.google.com/macros/s/AKfycbynRN_uScV_o1IAv5evkoZwn2QowuK62nVhsSB4iL7rA7nTJUhlcyqvLkyo7-U8C3ktAQ/exec";
+
+    let currentUser = JSON.parse(localStorage.getItem('simple_chat_user') || 'null');
+    let currentTab = 'chats';
+    let activeRoom = null;
+    let contacts = [];
+    let requests = [];
+    let rooms = [];
+    
+    // Local message cache for instant optimistic rendering
+    let localMessageCache = {};
+
+    const PALETTE = ['#0b57d0', '#137333', '#b31412', '#a142f4', '#e37400', '#007b83'];
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (currentUser) {
+        initApp();
+      } else {
+        document.getElementById('authBox').style.display = 'block';
+      }
+    });
+
+    // --- UNIVERSAL API CALLER (JSONP - 100% Reliable) ---
+    function callAPI(payload) {
+      return new Promise((resolve) => {
+        const cbName = 'gas_cb_' + Math.floor(Math.random() * 1000000);
+        const script = document.createElement('script');
+        
+        const timeout = setTimeout(() => {
+          clean();
+          resolve({ status: 'error', message: 'Connection timed out. Check your Google Sheet script.' });
+        }, 12000);
+
+        window[cbName] = function(data) {
+          clean();
+          resolve(data);
+        };
+
+        function clean() {
+          clearTimeout(timeout);
+          delete window[cbName];
+          if (script.parentNode) script.parentNode.removeChild(script);
+        }
+
+        script.onerror = function() {
+          clean();
+          resolve({ status: 'error', message: 'Network failed. Ensure Apps Script is deployed to "Anyone".' });
+        };
+
+        const encoded = encodeURIComponent(JSON.stringify(payload));
+        script.src = API_URL + '?callback=' + cbName + '&payload=' + encoded;
+        document.head.appendChild(script);
+      });
+    }
+
+    // --- AUTHENTICATION ---
+    function switchAuthTab(type) {
+      document.querySelectorAll('.auth-tab').forEach((el, idx) => el.classList.toggle('active', (type==='login' && idx===0) || (type==='reg' && idx===1)));
+      document.getElementById('loginForm').style.display = type === 'login' ? 'block' : 'none';
+      document.getElementById('regForm').style.display = type === 'reg' ? 'block' : 'none';
+    }
+
+    async function doRegister() {
+      const u = document.getElementById('regUser').value.trim();
+      const e = document.getElementById('regEmail').value.trim();
+      const p = document.getElementById('regPass').value.trim();
+      if (!u || !e || !p) return alert("Please fill out all fields.");
+
+      const btn = document.getElementById('regBtn');
+      btn.textContent = "Creating Account...";
+      const color = PALETTE[Math.floor(Math.random() * PALETTE.length)];
+      
+      const res = await callAPI({ action: "register", username: u, email: e, password: p, color: color });
+      btn.textContent = "Create Account";
+
+      if (res.status === 'success') {
+        currentUser = res.user;
+        localStorage.setItem('simple_chat_user', JSON.stringify(currentUser));
+        initApp();
+      } else {
+        alert(res.message);
+      }
+    }
+
+    async function doLogin() {
+      const id = document.getElementById('loginId').value.trim();
+      const p = document.getElementById('loginPass').value.trim();
+      if (!id || !p) return alert("Please enter your credentials.");
+
+      const btn = document.getElementById('loginBtn');
+      btn.textContent = "Signing In...";
+      const res = await callAPI({ action: "login", identifier: id, password: p });
+      btn.textContent = "Sign In";
+
+      if (res.status === 'success') {
+        currentUser = res.user;
+        localStorage.setItem('simple_chat_user', JSON.stringify(currentUser));
+        initApp();
+      } else {
+        alert(res.message);
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('simple_chat_user');
+      currentUser = null;
+      location.reload();
+    }
+
+    function initApp() {
+      document.getElementById('authBox').style.display = 'none';
+      document.getElementById('appBox').style.display = 'block';
+      document.getElementById('headerUserActions').style.display = 'flex';
+      document.getElementById('headerUsername').textContent = currentUser.username;
+
+      sync();
+      setInterval(sync, 2500); // Live poll Google Sheets every 2.5 seconds
+    }
+
+    // --- SYNC DATA & MERGE ---
+    async function sync() {
+      if (!currentUser) return;
+      const res = await callAPI({
+        action: 'sync',
+        username: currentUser.username,
+        roomId: activeRoom ? activeRoom.id : ''
+      });
+
+      if (res.status === 'success') {
+        contacts = res.contacts || [];
+        requests = res.incomingRequests || [];
+        rooms = res.rooms || [];
+
+        const badge = document.getElementById('reqBadge');
+        if (requests.length > 0) {
+          badge.textContent = requests.length;
+          badge.style.display = 'inline-block';
+        } else {
+          badge.style.display = 'none';
+        }
+
+        renderSidebar();
+
+        if (activeRoom && res.messages) {
+          mergeAndRenderMessages(activeRoom.id, res.messages);
+        }
+      }
+    }
+
+    function setTab(tab) {
+      currentTab = tab;
+      document.getElementById('tabChatsBtn').classList.toggle('active', tab === 'chats');
+      document.getElementById('tabContactsBtn').classList.toggle('active', tab === 'contacts');
+      renderSidebar();
+    }
+
+    function renderSidebar() {
+      const view = document.getElementById('mainListView');
+      view.innerHTML = '';
+
+      if (currentTab === 'chats') {
+        if (rooms.length === 0) {
+          view.innerHTML = `<div style="padding:24px; text-align:center; color:var(--gm-text-secondary); font-size:0.85rem;">No active chats.<br>Add a contact to start messaging!</div>`;
+          return;
+        }
+
+        rooms.forEach(r => {
+          const isDM = r.type === 'dm';
+          const other = isDM ? r.members.find(m => m.toLowerCase() !== currentUser.username.toLowerCase()) || 'User' : '';
+          const title = isDM ? other : r.name;
+
+          const card = document.createElement('div');
+          card.className = `list-card ${activeRoom && activeRoom.id === r.id ? 'active' : ''}`;
+          card.onclick = () => openChatRoom(r);
+
+          card.innerHTML = `
+            <div class="avatar" style="background:${isDM ? '#0b57d0' : '#7b1fa2'}">
+              ${isDM ? title.charAt(0).toUpperCase() : '<span class="material-symbols-outlined" style="font-size:20px;">groups</span>'}
+            </div>
+            <div class="card-info">
+              <div class="card-title">${escapeHTML(title)}</div>
+              <div class="card-sub">${isDM ? 'Direct Message' : r.members.length + ' members'}</div>
+            </div>
+          `;
+          view.appendChild(card);
+        });
+      } else {
+        // CONTACTS VIEW
+        if (requests.length > 0) {
+          const reqHeader = document.createElement('div');
+          reqHeader.style = 'padding:10px 16px 4px; font-size:0.75rem; font-weight:700; color:var(--gm-primary);';
+          reqHeader.textContent = 'CONTACT REQUESTS';
+          view.appendChild(reqHeader);
+
+          requests.forEach(req => {
+            const card = document.createElement('div');
+            card.className = 'list-card';
+            card.innerHTML = `
+              <div class="avatar" style="background:#e37400">${req.from.charAt(0).toUpperCase()}</div>
+              <div class="card-info">
+                <div class="card-title">${escapeHTML(req.from)}</div>
+                <div class="card-sub">Wants to add you</div>
+              </div>
+              <div style="display:flex; gap:6px;">
+                <button class="action-btn-sm btn-blue" onclick="respondContact('${req.requestId}', '${req.from}', 'accepted')">Accept</button>
+                <button class="action-btn-sm btn-red" onclick="respondContact('${req.requestId}', '${req.from}', 'rejected')">Decline</button>
+              </div>
+            `;
+            view.appendChild(card);
+          });
+        }
+
+        const conHeader = document.createElement('div');
+        conHeader.style = 'padding:12px 16px 4px; font-size:0.75rem; font-weight:700; color:var(--gm-text-secondary);';
+        conHeader.textContent = 'MY CONTACTS';
+        view.appendChild(conHeader);
+
+        if (contacts.length === 0) {
+          const empty = document.createElement('div');
+          empty.style = 'padding:16px; font-size:0.85rem; color:var(--gm-text-secondary);';
+          empty.textContent = 'No contacts added yet. Click "Add Contact" below.';
+          view.appendChild(empty);
+          return;
+        }
+
+        contacts.forEach(c => {
+          const card = document.createElement('div');
+          card.className = 'list-card';
+          card.innerHTML = `
+            <div class="avatar" style="background:#137333">${c.charAt(0).toUpperCase()}</div>
+            <div class="card-info">
+              <div class="card-title">${escapeHTML(c)}</div>
+              <div class="card-sub">Friend</div>
+            </div>
+            <button class="action-btn-sm btn-blue" onclick="startDMChat('${c}')">Message</button>
+          `;
+          view.appendChild(card);
+        });
+      }
+    }
+
+    // --- CONTACT ACTIONS (OPTIMISTIC) ---
+    async function sendContactReq() {
+      const q = document.getElementById('contactSearchInput').value.trim();
+      if (!q) return alert("Enter a username or email.");
+
+      closeModal('addContactModal');
+      document.getElementById('contactSearchInput').value = '';
+
+      const res = await callAPI({ action: 'sendContactRequest', from: currentUser.username, to: q });
+      alert(res.message);
+      sync();
+    }
+
+    async function respondContact(reqId, fromUser, status) {
+      // Optimistic update
+      requests = requests.filter(r => r.requestId !== reqId);
+      if (status === 'accepted') {
+        contacts.push(fromUser);
+      }
+      renderSidebar();
+
+      await callAPI({ action: 'respondContact', requestId: reqId, status: status });
+      sync();
+    }
+
+    // --- CHAT ACTIONS ---
+    async function startDMChat(target) {
+      // Optimistic room opening
+      const tempRoom = {
+        id: 'dm_' + [currentUser.username, target].sort().join('_'),
+        type: 'dm',
+        name: target,
+        members: [currentUser.username, target]
+      };
+      
+      setTab('chats');
+      openChatRoom(tempRoom);
+
+      const res = await callAPI({
+        action: 'createRoom',
+        type: 'dm',
+        name: '',
+        members: [currentUser.username, target],
+        createdBy: currentUser.username
+      });
+
+      if (res.status === 'success' && res.room) {
+        activeRoom = res.room;
+        sync();
+      }
+    }
+
+    function openNewGroupModal() {
+      if (contacts.length === 0) return alert("Add some contacts before creating a group.");
+      document.getElementById('groupNameInput').value = '';
+      const box = document.getElementById('groupCheckList');
+      box.innerHTML = '';
+
+      contacts.forEach(c => {
+        const item = document.createElement('label');
+        item.style = 'display:flex; align-items:center; gap:8px; background:var(--gm-bg); padding:6px 10px; border-radius:8px; cursor:pointer; font-size:0.9rem;';
+        item.innerHTML = `<input type="checkbox" value="${c}" /> <span>${escapeHTML(c)}</span>`;
+        box.appendChild(item);
+      });
+      openModal('newGroupModal');
+    }
+
+    async function createGroup() {
+      const name = document.getElementById('groupNameInput').value.trim();
+      if (!name) return alert("Enter a group name.");
+
+      const checked = Array.from(document.querySelectorAll('#groupCheckList input:checked')).map(cb => cb.value);
+      if (checked.length === 0) return alert("Select at least 1 contact.");
+
+      checked.push(currentUser.username);
+      closeModal('newGroupModal');
+
+      const res = await callAPI({
+        action: 'createRoom',
+        type: 'group',
+        name: name,
+        members: checked,
+        createdBy: currentUser.username
+      });
+
+      if (res.status === 'success') {
+        setTab('chats');
+        openChatRoom(res.room);
+      }
+    }
+
+    function openChatRoom(room) {
+      activeRoom = room;
+      if (!localMessageCache[room.id]) {
+        localMessageCache[room.id] = [];
+      }
+
+      document.getElementById('emptyChatPlaceholder').style.display = 'none';
+      document.getElementById('chatInterface').style.display = 'flex';
+
+      // Mobile transitions
+      document.getElementById('sidebar').classList.add('mobile-hide');
+      document.getElementById('chatPane').classList.add('mobile-open');
+
+      const isDM = room.type === 'dm';
+      const other = isDM ? room.members.find(m => m.toLowerCase() !== currentUser.username.toLowerCase()) || 'User' : '';
+      const title = isDM ? other : room.name;
+
+      document.getElementById('roomTitle').textContent = title;
+      document.getElementById('roomAvatar').textContent = isDM ? title.charAt(0).toUpperCase() : '#';
+      document.getElementById('roomSubtitle').textContent = isDM ? 'Direct Conversation' : room.members.join(', ');
+
+      renderMessages(localMessageCache[room.id] || []);
+      renderSidebar();
+      sync();
+    }
+
+    function closeChatMobile() {
+      document.getElementById('sidebar').classList.remove('mobile-hide');
+      document.getElementById('chatPane').classList.remove('mobile-open');
+      activeRoom = null;
+      renderSidebar();
+    }
+
+    // --- INSTANT OPTIMISTIC SENDING ---
+    async function sendCurrentMessage() {
+      const input = document.getElementById('chatTextInput');
+      const text = input.value.trim();
+      if (!text || !activeRoom) return;
+
+      const tempId = 'temp_' + Date.now();
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      // 1. INSTANT LOCAL OBJECT WITH SINGLE CHECKMARK (✓)
+      const optimisticMsg = {
+        id: tempId,
+        roomId: activeRoom.id,
+        sender: currentUser.username,
+        text: text,
+        timestamp: time,
+        color: currentUser.color || '#0b57d0',
+        status: 'sending' // Single checkmark (sent from phone)
+      };
+
+      if (!localMessageCache[activeRoom.id]) {
+        localMessageCache[activeRoom.id] = [];
+      }
+      localMessageCache[activeRoom.id].push(optimisticMsg);
+
+      // Render immediately with 0 delay
+      renderMessages(localMessageCache[activeRoom.id], true);
+      input.value = '';
+      input.focus();
+
+      // 2. BACKGROUND SEND TO GOOGLE SHEETS
+      const res = await callAPI({
+        action: 'sendMessage',
+        tempId: tempId,
+        roomId: activeRoom.id,
+        sender: currentUser.username,
+        text: text,
+        timestamp: time,
+        color: currentUser.color || '#0b57d0'
+      });
+
+      // 3. ONCE GOOGLE SHEETS CONFIRMS, UPDATE TO DOUBLE CHECKMARK (✓✓)
+      if (res.status === 'success') {
+        optimisticMsg.status = 'sent'; // Double checkmark (saved in Google Sheet)
+        renderMessages(localMessageCache[activeRoom.id], false);
+      }
+    }
+
+    // --- MERGE SERVER & LOCAL MESSAGES ---
+    function mergeAndRenderMessages(roomId, serverMessages) {
+      if (!localMessageCache[roomId]) localMessageCache[roomId] = [];
+
+      // Keep optimistic messages that haven't landed in server messages yet
+      const pendingOptimistic = localMessageCache[roomId].filter(m => m.status === 'sending');
+
+      // Server messages are confirmed (double check ✓✓)
+      const confirmedServer = serverMessages.map(m => ({ ...m, status: 'sent' }));
+
+      // Merge & avoid duplicates
+      const finalMessages = [...confirmedServer];
+      pendingOptimistic.forEach(pMsg => {
+        const exists = confirmedServer.some(sMsg => sMsg.text === pMsg.text && sMsg.sender === pMsg.sender && sMsg.timestamp === pMsg.timestamp);
+        if (!exists) {
+          finalMessages.push(pMsg);
+        }
+      });
+
+      localMessageCache[roomId] = finalMessages;
+      renderMessages(finalMessages);
+    }
+
+    // --- RENDER MESSAGES WITH WHATSAPP CHECKMARKS ---
+    function renderMessages(msgList, forceScrollBottom = false) {
+      const area = document.getElementById('chatMessages');
+      const isNearBottom = area.scrollHeight - area.scrollTop <= area.clientHeight + 100;
+      area.innerHTML = '';
+
+      msgList.forEach(m => {
+        const isMe = m.sender.toLowerCase() === currentUser.username.toLowerCase();
+        const row = document.createElement('div');
+        row.className = `msg-wrap ${isMe ? 'out' : 'in'}`;
+
+        // Checkmark Logic:
+        // 'sending' = Single grey checkmark (✓)
+        // 'sent'    = Double blue checkmark (✓✓)
+        let checkmarkHTML = '';
+        if (isMe) {
+          if (m.status === 'sending') {
+            checkmarkHTML = `<span class="material-symbols-outlined check-icon single" title="Sent">check</span>`;
+          } else {
+            checkmarkHTML = `<span class="material-symbols-outlined check-icon double" title="Saved to Google Sheets">done_all</span>`;
+          }
+        }
+
+        row.innerHTML = `
+          ${!isMe ? `<div class="avatar" style="background:${m.color || '#0b57d0'}; width:28px; height:28px; font-size:0.75rem;">${m.sender.charAt(0).toUpperCase()}</div>` : ''}
+          <div class="msg-box">
+            ${!isMe && activeRoom && activeRoom.type === 'group' ? `<div class="msg-sender">${m.sender}</div>` : ''}
+            <div class="msg-text-bubble">
+              <div>${escapeHTML(m.text)}</div>
+              <div class="msg-meta">
+                <span>${m.timestamp || ''}</span>
+                ${checkmarkHTML}
+              </div>
+            </div>
+          </div>
+        `;
+        area.appendChild(row);
+      });
+
+      if (isNearBottom || forceScrollBottom) {
+        area.scrollTop = area.scrollHeight;
+      }
+    }
+
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function escapeHTML(str) {
+      return (str || '').replace(/[&<>'"]/g, t => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[t] || t));
+    }
+  </script>
+</body>
+</html>
