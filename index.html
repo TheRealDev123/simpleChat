@@ -18,6 +18,8 @@
       --gm-primary-container: #c2e7ff;
       --gm-bubble-in: #ffffff;
       --gm-bubble-out: #c2e7ff;
+      --gm-ai-bubble: #f3e8ff;
+      --gm-ai-gradient: linear-gradient(135deg, #7c4dff, #00b0ff);
       --gm-text-main: #1f1f1f;
       --gm-text-secondary: #5e5e5e;
       --gm-border: #e3e3e3;
@@ -227,10 +229,13 @@
       padding: 12px 16px;
       cursor: pointer;
       border-bottom: 1px solid #f4f4f4;
+      transition: background 0.15s;
     }
 
     .list-card:hover { background: var(--gm-bg); }
     .list-card.active { background: #e8f0fe; }
+    .list-card.ai-card { background: #faf5ff; border-left: 3px solid #7c4dff; }
+    .list-card.ai-card:hover { background: #f3e8ff; }
 
     .avatar {
       width: 40px;
@@ -246,8 +251,18 @@
     }
 
     .card-info { flex: 1; min-width: 0; }
-    .card-title { font-weight: 500; font-size: 0.95rem; }
+    .card-title { font-weight: 500; font-size: 0.95rem; display: flex; align-items: center; gap: 6px; }
     .card-sub { font-size: 0.8rem; color: var(--gm-text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .ai-badge {
+      background: var(--gm-ai-gradient);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 8px;
+      text-transform: uppercase;
+    }
 
     .sidebar-actions {
       padding: 10px 14px;
@@ -274,7 +289,7 @@
 
     .pill-btn:hover { background: #e8f0fe; border-color: var(--gm-primary); color: var(--gm-primary); }
 
-    /* CHAT PANE */
+    /* CHAT CONVERSATION PANE */
     .chat-pane {
       flex: 1;
       display: flex;
@@ -293,6 +308,18 @@
       gap: 12px;
       height: 58px;
       flex-shrink: 0;
+    }
+
+    .quota-chip {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #7c4dff;
+      background: #f3e8ff;
+      padding: 3px 8px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
 
     .chat-messages {
@@ -315,7 +342,36 @@
     .msg-box { max-width: 75%; display: flex; flex-direction: column; }
     .msg-wrap.out .msg-box { align-items: flex-end; }
     
-    .msg-sender { font-size: 0.72rem; color: var(--gm-text-secondary); margin-bottom: 2px; margin-left: 10px; }
+    /* GROUP SENDER & ADD FRIEND CHIP */
+    .msg-sender {
+      font-size: 0.72rem;
+      color: var(--gm-text-secondary);
+      margin-bottom: 2px;
+      margin-left: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .quick-add-btn {
+      background: #e8f0fe;
+      color: var(--gm-primary);
+      border: 1px solid #c2e7ff;
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 1px 7px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      transition: all 0.2s;
+    }
+
+    .quick-add-btn:hover {
+      background: var(--gm-primary);
+      color: white;
+    }
     
     .msg-text-bubble {
       padding: 9px 14px;
@@ -340,6 +396,13 @@
       border-bottom-right-radius: 4px;
     }
 
+    .msg-wrap.ai-msg .msg-text-bubble {
+      background: var(--gm-ai-bubble);
+      color: #2e0854;
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 1px 3px rgba(124, 77, 255, 0.12);
+    }
+
     .msg-meta {
       display: flex;
       align-items: center;
@@ -359,6 +422,36 @@
 
     .check-icon.single { color: #74777f; }
     .check-icon.double { color: var(--gm-check-blue); font-weight: bold; }
+
+    /* TYPING INDICATOR */
+    .typing-box {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 14px;
+      background: var(--gm-ai-bubble);
+      border-radius: 20px;
+      border-bottom-left-radius: 4px;
+      width: fit-content;
+      color: #7c4dff;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      background: #7c4dff;
+      border-radius: 50%;
+      animation: bounce 1.2s infinite ease-in-out;
+    }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-5px); }
+    }
 
     /* BOTTOM INPUT */
     .chat-input-bar {
@@ -402,6 +495,10 @@
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
+    }
+
+    .send-fab.ai-fab {
+      background: var(--gm-ai-gradient);
     }
 
     .empty-chat {
@@ -554,7 +651,7 @@
         <div class="empty-chat" id="emptyChatPlaceholder">
           <span class="material-symbols-outlined">chat_bubble_outline</span>
           <h3>No Conversation Selected</h3>
-          <p style="font-size:0.85rem; margin-top:4px;">Select a chat or add a contact to start messaging.</p>
+          <p style="font-size:0.85rem; margin-top:4px;">Select Abel AI or a friend to start messaging.</p>
         </div>
 
         <div id="chatInterface" style="display:none; flex-direction:column; height:100%;">
@@ -564,7 +661,10 @@
             </button>
             <div class="avatar" id="roomAvatar" style="background:#0b57d0; width:34px; height:34px; font-size:0.85rem;">#</div>
             <div style="flex:1; min-width:0;">
-              <div style="font-weight:600; font-size:0.95rem;" id="roomTitle">Conversation</div>
+              <div style="font-weight:600; font-size:0.95rem; display:flex; align-items:center; gap:8px;">
+                <span id="roomTitle">Conversation</span>
+                <span id="headerQuota" class="quota-chip" style="display:none;">✨ 10/10 left today</span>
+              </div>
               <div style="font-size:0.75rem; color:var(--gm-text-secondary);" id="roomSubtitle">...</div>
             </div>
           </div>
@@ -575,7 +675,7 @@
             <div class="input-pill">
               <input type="text" id="chatTextInput" placeholder="Text message..." onkeydown="if(event.key==='Enter') sendCurrentMessage()" />
             </div>
-            <button class="send-fab" onclick="sendCurrentMessage()">
+            <button class="send-fab" id="sendBtnFab" onclick="sendCurrentMessage()">
               <span class="material-symbols-outlined" style="font-size:20px;">send</span>
             </button>
           </div>
@@ -622,8 +722,17 @@
     let requests = [];
     let rooms = [];
     let localMessageCache = {};
+    let isAiThinking = false;
 
     const PALETTE = ['#0b57d0', '#137333', '#b31412', '#a142f4', '#e37400', '#007b83'];
+
+    // --- ABEL AI ROOM DEFINITION ---
+    const ABEL_AI_ROOM = {
+      id: 'room_abel_ai',
+      type: 'ai',
+      name: 'Abel AI',
+      members: ['Abel AI']
+    };
 
     window.addEventListener('DOMContentLoaded', () => {
       if (currentUser) {
@@ -633,7 +742,26 @@
       }
     });
 
-    // DUAL API ENGINE (Tries Direct Fetch First, then JSONP Fallback for GitHub Pages)
+    // --- DAILY QUOTA FOR ABEL AI (10 DMs / DAY) ---
+    function getAbelQuota() {
+      const today = new Date().toISOString().slice(0, 10);
+      const stored = JSON.parse(localStorage.getItem('abel_quota_' + currentUser.username) || '{}');
+      if (stored.date !== today) {
+        const fresh = { date: today, used: 0, max: 10 };
+        localStorage.setItem('abel_quota_' + currentUser.username, JSON.stringify(fresh));
+        return fresh;
+      }
+      return stored;
+    }
+
+    function decrementAbelQuota() {
+      const q = getAbelQuota();
+      q.used += 1;
+      localStorage.setItem('abel_quota_' + currentUser.username, JSON.stringify(q));
+      return q;
+    }
+
+    // --- DUAL API ENGINE (Fetch + JSONP) ---
     async function callAPI(payload) {
       try {
         const response = await fetch(API_URL, {
@@ -644,14 +772,13 @@
         const data = await response.json();
         if (data) return data;
       } catch (err) {
-        // Fallback to JSONP
         return new Promise((resolve) => {
           const cbName = 'gas_cb_' + Math.floor(Math.random() * 1000000);
           const script = document.createElement('script');
           
           const timeout = setTimeout(() => {
             clean();
-            resolve({ status: 'error', message: 'Connection timed out. Check your Google Sheet script authorization.' });
+            resolve({ status: 'error', message: 'Connection timed out.' });
           }, 12000);
 
           window[cbName] = function(data) {
@@ -667,7 +794,7 @@
 
           script.onerror = function() {
             clean();
-            resolve({ status: 'error', message: 'Network failed. Ensure Apps Script is authorized and deployed to "Anyone".' });
+            resolve({ status: 'error', message: 'Network failed.' });
           };
 
           const encoded = encodeURIComponent(JSON.stringify(payload));
@@ -747,7 +874,7 @@
       const res = await callAPI({
         action: 'sync',
         username: currentUser.username,
-        roomId: activeRoom ? activeRoom.id : ''
+        roomId: activeRoom ? (activeRoom.type === 'ai' ? 'ai_' + currentUser.username : activeRoom.id) : ''
       });
 
       if (res.status === 'success') {
@@ -765,8 +892,11 @@
 
         renderSidebar();
 
-        if (activeRoom && res.messages) {
-          mergeAndRenderMessages(activeRoom.id, res.messages);
+        if (activeRoom) {
+          const syncKey = activeRoom.type === 'ai' ? 'ai_' + currentUser.username : activeRoom.id;
+          if (res.messages) {
+            mergeAndRenderMessages(syncKey, res.messages);
+          }
         }
       }
     }
@@ -783,11 +913,25 @@
       view.innerHTML = '';
 
       if (currentTab === 'chats') {
-        if (rooms.length === 0) {
-          view.innerHTML = `<div style="padding:24px; text-align:center; color:var(--gm-text-secondary); font-size:0.85rem;">No active chats.<br>Add a contact to start messaging!</div>`;
-          return;
-        }
+        // 1. ALWAYS PIN ABEL AI AT THE TOP
+        const quota = getAbelQuota();
+        const aiCard = document.createElement('div');
+        aiCard.className = `list-card ai-card ${activeRoom && activeRoom.type === 'ai' ? 'active' : ''}`;
+        aiCard.onclick = () => openChatRoom(ABEL_AI_ROOM);
+        aiCard.innerHTML = `
+          <div class="avatar" style="background:var(--gm-ai-gradient);"><span class="material-symbols-outlined" style="font-size:22px;">auto_awesome</span></div>
+          <div class="card-info">
+            <div class="card-title">
+              Abel AI <span class="ai-badge">Gemini Flash</span>
+            </div>
+            <div class="card-sub" style="color:#7c4dff; font-weight:500;">
+              ✨ ${quota.max - quota.used} of ${quota.max} DMs left today
+            </div>
+          </div>
+        `;
+        view.appendChild(aiCard);
 
+        // 2. RENDER OTHER ROOMS
         rooms.forEach(r => {
           const isDM = r.type === 'dm';
           const other = isDM ? r.members.find(m => m.toLowerCase() !== currentUser.username.toLowerCase()) || 'User' : '';
@@ -861,6 +1005,13 @@
           view.appendChild(card);
         });
       }
+    }
+
+    // --- QUICK ADD FRIEND FROM GROUP CHAT ---
+    async function quickAddContact(targetUser) {
+      const res = await callAPI({ action: 'sendContactRequest', from: currentUser.username, to: targetUser });
+      alert(res.message);
+      sync();
     }
 
     async function sendContactReq() {
@@ -950,7 +1101,8 @@
 
     function openChatRoom(room) {
       activeRoom = room;
-      if (!localMessageCache[room.id]) localMessageCache[room.id] = [];
+      const cacheKey = room.type === 'ai' ? 'ai_' + currentUser.username : room.id;
+      if (!localMessageCache[cacheKey]) localMessageCache[cacheKey] = [];
 
       document.getElementById('emptyChatPlaceholder').style.display = 'none';
       document.getElementById('chatInterface').style.display = 'flex';
@@ -958,15 +1110,32 @@
       document.getElementById('sidebar').classList.add('mobile-hide');
       document.getElementById('chatPane').classList.add('mobile-open');
 
-      const isDM = room.type === 'dm';
-      const other = isDM ? room.members.find(m => m.toLowerCase() !== currentUser.username.toLowerCase()) || 'User' : '';
-      const title = isDM ? other : room.name;
+      const headerQuota = document.getElementById('headerQuota');
+      const sendBtn = document.getElementById('sendBtnFab');
 
-      document.getElementById('roomTitle').textContent = title;
-      document.getElementById('roomAvatar').textContent = isDM ? title.charAt(0).toUpperCase() : '#';
-      document.getElementById('roomSubtitle').textContent = isDM ? 'Direct Conversation' : room.members.join(', ');
+      if (room.type === 'ai') {
+        const q = getAbelQuota();
+        document.getElementById('roomTitle').textContent = 'Abel AI';
+        document.getElementById('roomAvatar').style.background = 'var(--gm-ai-gradient)';
+        document.getElementById('roomAvatar').innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;">auto_awesome</span>';
+        document.getElementById('roomSubtitle').textContent = 'Gemini 3.5 Flash Light AI';
+        headerQuota.style.display = 'inline-flex';
+        headerQuota.textContent = `✨ ${q.max - q.used}/${q.max} left`;
+        sendBtn.classList.add('ai-fab');
+      } else {
+        const isDM = room.type === 'dm';
+        const other = isDM ? room.members.find(m => m.toLowerCase() !== currentUser.username.toLowerCase()) || 'User' : '';
+        const title = isDM ? other : room.name;
 
-      renderMessages(localMessageCache[room.id] || []);
+        document.getElementById('roomTitle').textContent = title;
+        document.getElementById('roomAvatar').style.background = isDM ? '#0b57d0' : '#7b1fa2';
+        document.getElementById('roomAvatar').textContent = isDM ? title.charAt(0).toUpperCase() : '#';
+        document.getElementById('roomSubtitle').textContent = isDM ? 'Direct Conversation' : room.members.join(', ');
+        headerQuota.style.display = 'none';
+        sendBtn.classList.remove('ai-fab');
+      }
+
+      renderMessages(localMessageCache[cacheKey] || []);
       renderSidebar();
       sync();
     }
@@ -978,14 +1147,75 @@
       renderSidebar();
     }
 
+    // --- INSTANT OPTIMISTIC SENDING ---
     async function sendCurrentMessage() {
       const input = document.getElementById('chatTextInput');
       const text = input.value.trim();
       if (!text || !activeRoom) return;
 
-      const tempId = 'temp_' + Date.now();
+      const cacheKey = activeRoom.type === 'ai' ? 'ai_' + currentUser.username : activeRoom.id;
       const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const tempId = 'temp_' + Date.now();
 
+      // IF CHATTING WITH ABEL AI:
+      if (activeRoom.type === 'ai') {
+        const quota = getAbelQuota();
+        if (quota.used >= quota.max) {
+          return alert("You have reached your 10 free Abel AI DMs for today! Daily quota resets at midnight.");
+        }
+
+        const newQuota = decrementAbelQuota();
+        document.getElementById('headerQuota').textContent = `✨ ${newQuota.max - newQuota.used}/${newQuota.max} left`;
+
+        // 1. Optimistically display user message
+        const optimisticUserMsg = {
+          id: tempId,
+          roomId: cacheKey,
+          sender: currentUser.username,
+          text: text,
+          timestamp: time,
+          color: currentUser.color || '#0b57d0',
+          status: 'sending'
+        };
+
+        if (!localMessageCache[cacheKey]) localMessageCache[cacheKey] = [];
+        localMessageCache[cacheKey].push(optimisticUserMsg);
+
+        input.value = '';
+        renderMessages(localMessageCache[cacheKey], true);
+
+        // 2. Show Abel AI Thinking Animation
+        isAiThinking = true;
+        renderMessages(localMessageCache[cacheKey], true);
+
+        // 3. Request Gemini Answer from Abel AI Backend
+        const res = await callAPI({
+          action: 'askAbel',
+          roomId: cacheKey,
+          username: currentUser.username,
+          text: text
+        });
+
+        isAiThinking = false;
+        optimisticUserMsg.status = 'sent';
+
+        if (res.status === 'success') {
+          localMessageCache[cacheKey].push({
+            id: 'm_ai_' + Date.now(),
+            roomId: cacheKey,
+            sender: 'Abel AI',
+            text: res.reply,
+            timestamp: res.timestamp,
+            color: '#7c4dff',
+            status: 'sent'
+          });
+        }
+        renderMessages(localMessageCache[cacheKey], true);
+        renderSidebar();
+        return;
+      }
+
+      // NORMAL CHAT MESSAGE:
       const optimisticMsg = {
         id: tempId,
         roomId: activeRoom.id,
@@ -996,10 +1226,10 @@
         status: 'sending'
       };
 
-      if (!localMessageCache[activeRoom.id]) localMessageCache[activeRoom.id] = [];
-      localMessageCache[activeRoom.id].push(optimisticMsg);
+      if (!localMessageCache[cacheKey]) localMessageCache[cacheKey] = [];
+      localMessageCache[cacheKey].push(optimisticMsg);
 
-      renderMessages(localMessageCache[activeRoom.id], true);
+      renderMessages(localMessageCache[cacheKey], true);
       input.value = '';
       input.focus();
 
@@ -1015,7 +1245,7 @@
 
       if (res.status === 'success') {
         optimisticMsg.status = 'sent';
-        renderMessages(localMessageCache[activeRoom.id], false);
+        renderMessages(localMessageCache[cacheKey], false);
       }
     }
 
@@ -1035,6 +1265,7 @@
       renderMessages(finalMessages);
     }
 
+    // --- RENDER MESSAGES (WITH + ADD FRIEND & ABEL AI STYLES) ---
     function renderMessages(msgList, forceScrollBottom = false) {
       const area = document.getElementById('chatMessages');
       const isNearBottom = area.scrollHeight - area.scrollTop <= area.clientHeight + 100;
@@ -1042,9 +1273,11 @@
 
       msgList.forEach(m => {
         const isMe = m.sender.toLowerCase() === currentUser.username.toLowerCase();
+        const isAI = m.sender === 'Abel AI';
         const row = document.createElement('div');
-        row.className = `msg-wrap ${isMe ? 'out' : 'in'}`;
+        row.className = `msg-wrap ${isMe ? 'out' : 'in'} ${isAI ? 'ai-msg' : ''}`;
 
+        // WhatsApp Checkmarks
         let checkmarkHTML = '';
         if (isMe) {
           if (m.status === 'sending') {
@@ -1054,10 +1287,37 @@
           }
         }
 
+        // Check if sender is a friend in Group Chat:
+        const isFriend = contacts.some(c => c.toLowerCase() === m.sender.toLowerCase());
+        const showAddFriendBtn = !isMe && !isAI && activeRoom && activeRoom.type === 'group' && !isFriend;
+
+        // Avatar
+        let avatarHTML = '';
+        if (!isMe) {
+          if (isAI) {
+            avatarHTML = `<div class="avatar" style="background:var(--gm-ai-gradient); width:28px; height:28px;"><span class="material-symbols-outlined" style="font-size:16px;">auto_awesome</span></div>`;
+          } else {
+            avatarHTML = `<div class="avatar" style="background:${m.color || '#0b57d0'}; width:28px; height:28px; font-size:0.75rem;">${m.sender.charAt(0).toUpperCase()}</div>`;
+          }
+        }
+
+        // Sender Header in Group Chat
+        let senderHTML = '';
+        if (!isMe && activeRoom && activeRoom.type === 'group') {
+          senderHTML = `
+            <div class="msg-sender">
+              <span>${escapeHTML(m.sender)}</span>
+              ${showAddFriendBtn ? `<button class="quick-add-btn" onclick="quickAddContact('${escapeHTML(m.sender)}')"><span class="material-symbols-outlined" style="font-size:12px;">person_add</span> Add</button>` : ''}
+            </div>
+          `;
+        } else if (!isMe && isAI) {
+          senderHTML = `<div class="msg-sender" style="color:#7c4dff; font-weight:600;">Abel AI ✨</div>`;
+        }
+
         row.innerHTML = `
-          ${!isMe ? `<div class="avatar" style="background:${m.color || '#0b57d0'}; width:28px; height:28px; font-size:0.75rem;">${m.sender.charAt(0).toUpperCase()}</div>` : ''}
+          ${avatarHTML}
           <div class="msg-box">
-            ${!isMe && activeRoom && activeRoom.type === 'group' ? `<div class="msg-sender">${m.sender}</div>` : ''}
+            ${senderHTML}
             <div class="msg-text-bubble">
               <div>${escapeHTML(m.text)}</div>
               <div class="msg-meta">
@@ -1069,6 +1329,20 @@
         `;
         area.appendChild(row);
       });
+
+      // Typing Indicator
+      if (isAiThinking) {
+        const typingRow = document.createElement('div');
+        typingRow.className = 'msg-wrap in ai-msg';
+        typingRow.innerHTML = `
+          <div class="avatar" style="background:var(--gm-ai-gradient); width:28px; height:28px;"><span class="material-symbols-outlined" style="font-size:16px;">auto_awesome</span></div>
+          <div class="typing-box">
+            <span>Abel AI is thinking</span>
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          </div>
+        `;
+        area.appendChild(typingRow);
+      }
 
       if (isNearBottom || forceScrollBottom) {
         area.scrollTop = area.scrollHeight;
