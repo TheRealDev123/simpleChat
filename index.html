@@ -274,7 +274,7 @@
 
     .pill-btn:hover { background: #e8f0fe; border-color: var(--gm-primary); color: var(--gm-primary); }
 
-    /* CHAT CONVERSATION PANE */
+    /* CHAT PANE */
     .chat-pane {
       flex: 1;
       display: flex;
@@ -350,7 +350,6 @@
       color: var(--gm-text-secondary);
     }
 
-    /* WHATSAPP STYLE CHECKMARKS */
     .check-icon {
       font-size: 15px !important;
       display: inline-block;
@@ -358,14 +357,8 @@
       line-height: 1;
     }
 
-    .check-icon.single {
-      color: #74777f; /* Grey single check for sent */
-    }
-
-    .check-icon.double {
-      color: var(--gm-check-blue); /* Google blue double check for saved */
-      font-weight: bold;
-    }
+    .check-icon.single { color: #74777f; }
+    .check-icon.double { color: var(--gm-check-blue); font-weight: bold; }
 
     /* BOTTOM INPUT */
     .chat-input-bar {
@@ -452,7 +445,6 @@
       margin-top: 14px;
     }
 
-    /* MOBILE FULLSCREEN */
     @media (max-width: 768px) {
       .app-header { height: 56px; padding: 0 12px; }
       #appBox { height: calc(100% - 56px); }
@@ -493,7 +485,7 @@
         <span class="material-symbols-outlined" style="font-size:22px;">chat</span>
       </div>
       <div class="brand-title">Simple Chat</div>
-      <div class="status-pill"><span class="status-dot"></span> Google Sheets</div>
+      <div class="status-pill"><span class="status-dot"></span> Online</div>
     </div>
     <div id="headerUserActions" style="display:none; align-items:center; gap:10px;">
       <span id="headerUsername" style="font-size:0.85rem; font-weight:500;">User</span>
@@ -621,7 +613,6 @@
   </div>
 
   <script>
-    // PRE-CONFIGURED APPS SCRIPT URL
     const API_URL = "https://script.google.com/macros/s/AKfycbynRN_uScV_o1IAv5evkoZwn2QowuK62nVhsSB4iL7rA7nTJUhlcyqvLkyo7-U8C3ktAQ/exec";
 
     let currentUser = JSON.parse(localStorage.getItem('simple_chat_user') || 'null');
@@ -630,8 +621,6 @@
     let contacts = [];
     let requests = [];
     let rooms = [];
-    
-    // Local message cache for instant optimistic rendering
     let localMessageCache = {};
 
     const PALETTE = ['#0b57d0', '#137333', '#b31412', '#a142f4', '#e37400', '#007b83'];
@@ -644,40 +633,51 @@
       }
     });
 
-    // --- UNIVERSAL API CALLER (JSONP - 100% Reliable) ---
-    function callAPI(payload) {
-      return new Promise((resolve) => {
-        const cbName = 'gas_cb_' + Math.floor(Math.random() * 1000000);
-        const script = document.createElement('script');
-        
-        const timeout = setTimeout(() => {
-          clean();
-          resolve({ status: 'error', message: 'Connection timed out. Check your Google Sheet script.' });
-        }, 12000);
+    // DUAL API ENGINE (Tries Direct Fetch First, then JSONP Fallback for GitHub Pages)
+    async function callAPI(payload) {
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        if (data) return data;
+      } catch (err) {
+        // Fallback to JSONP
+        return new Promise((resolve) => {
+          const cbName = 'gas_cb_' + Math.floor(Math.random() * 1000000);
+          const script = document.createElement('script');
+          
+          const timeout = setTimeout(() => {
+            clean();
+            resolve({ status: 'error', message: 'Connection timed out. Check your Google Sheet script authorization.' });
+          }, 12000);
 
-        window[cbName] = function(data) {
-          clean();
-          resolve(data);
-        };
+          window[cbName] = function(data) {
+            clean();
+            resolve(data);
+          };
 
-        function clean() {
-          clearTimeout(timeout);
-          delete window[cbName];
-          if (script.parentNode) script.parentNode.removeChild(script);
-        }
+          function clean() {
+            clearTimeout(timeout);
+            delete window[cbName];
+            if (script.parentNode) script.parentNode.removeChild(script);
+          }
 
-        script.onerror = function() {
-          clean();
-          resolve({ status: 'error', message: 'Network failed. Ensure Apps Script is deployed to "Anyone".' });
-        };
+          script.onerror = function() {
+            clean();
+            resolve({ status: 'error', message: 'Network failed. Ensure Apps Script is authorized and deployed to "Anyone".' });
+          };
 
-        const encoded = encodeURIComponent(JSON.stringify(payload));
-        script.src = API_URL + '?callback=' + cbName + '&payload=' + encoded;
-        document.head.appendChild(script);
-      });
+          const encoded = encodeURIComponent(JSON.stringify(payload));
+          script.src = API_URL + '?callback=' + cbName + '&payload=' + encoded;
+          document.head.appendChild(script);
+        });
+      }
     }
 
-    // --- AUTHENTICATION ---
+    // AUTH
     function switchAuthTab(type) {
       document.querySelectorAll('.auth-tab').forEach((el, idx) => el.classList.toggle('active', (type==='login' && idx===0) || (type==='reg' && idx===1)));
       document.getElementById('loginForm').style.display = type === 'login' ? 'block' : 'none';
@@ -738,10 +738,10 @@
       document.getElementById('headerUsername').textContent = currentUser.username;
 
       sync();
-      setInterval(sync, 2500); // Live poll Google Sheets every 2.5 seconds
+      setInterval(sync, 2500);
     }
 
-    // --- SYNC DATA & MERGE ---
+    // SYNC
     async function sync() {
       if (!currentUser) return;
       const res = await callAPI({
@@ -863,7 +863,6 @@
       }
     }
 
-    // --- CONTACT ACTIONS (OPTIMISTIC) ---
     async function sendContactReq() {
       const q = document.getElementById('contactSearchInput').value.trim();
       if (!q) return alert("Enter a username or email.");
@@ -877,20 +876,15 @@
     }
 
     async function respondContact(reqId, fromUser, status) {
-      // Optimistic update
       requests = requests.filter(r => r.requestId !== reqId);
-      if (status === 'accepted') {
-        contacts.push(fromUser);
-      }
+      if (status === 'accepted') contacts.push(fromUser);
       renderSidebar();
 
       await callAPI({ action: 'respondContact', requestId: reqId, status: status });
       sync();
     }
 
-    // --- CHAT ACTIONS ---
     async function startDMChat(target) {
-      // Optimistic room opening
       const tempRoom = {
         id: 'dm_' + [currentUser.username, target].sort().join('_'),
         type: 'dm',
@@ -956,14 +950,11 @@
 
     function openChatRoom(room) {
       activeRoom = room;
-      if (!localMessageCache[room.id]) {
-        localMessageCache[room.id] = [];
-      }
+      if (!localMessageCache[room.id]) localMessageCache[room.id] = [];
 
       document.getElementById('emptyChatPlaceholder').style.display = 'none';
       document.getElementById('chatInterface').style.display = 'flex';
 
-      // Mobile transitions
       document.getElementById('sidebar').classList.add('mobile-hide');
       document.getElementById('chatPane').classList.add('mobile-open');
 
@@ -987,7 +978,6 @@
       renderSidebar();
     }
 
-    // --- INSTANT OPTIMISTIC SENDING ---
     async function sendCurrentMessage() {
       const input = document.getElementById('chatTextInput');
       const text = input.value.trim();
@@ -996,7 +986,6 @@
       const tempId = 'temp_' + Date.now();
       const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-      // 1. INSTANT LOCAL OBJECT WITH SINGLE CHECKMARK (✓)
       const optimisticMsg = {
         id: tempId,
         roomId: activeRoom.id,
@@ -1004,20 +993,16 @@
         text: text,
         timestamp: time,
         color: currentUser.color || '#0b57d0',
-        status: 'sending' // Single checkmark (sent from phone)
+        status: 'sending'
       };
 
-      if (!localMessageCache[activeRoom.id]) {
-        localMessageCache[activeRoom.id] = [];
-      }
+      if (!localMessageCache[activeRoom.id]) localMessageCache[activeRoom.id] = [];
       localMessageCache[activeRoom.id].push(optimisticMsg);
 
-      // Render immediately with 0 delay
       renderMessages(localMessageCache[activeRoom.id], true);
       input.value = '';
       input.focus();
 
-      // 2. BACKGROUND SEND TO GOOGLE SHEETS
       const res = await callAPI({
         action: 'sendMessage',
         tempId: tempId,
@@ -1028,37 +1013,28 @@
         color: currentUser.color || '#0b57d0'
       });
 
-      // 3. ONCE GOOGLE SHEETS CONFIRMS, UPDATE TO DOUBLE CHECKMARK (✓✓)
       if (res.status === 'success') {
-        optimisticMsg.status = 'sent'; // Double checkmark (saved in Google Sheet)
+        optimisticMsg.status = 'sent';
         renderMessages(localMessageCache[activeRoom.id], false);
       }
     }
 
-    // --- MERGE SERVER & LOCAL MESSAGES ---
     function mergeAndRenderMessages(roomId, serverMessages) {
       if (!localMessageCache[roomId]) localMessageCache[roomId] = [];
 
-      // Keep optimistic messages that haven't landed in server messages yet
       const pendingOptimistic = localMessageCache[roomId].filter(m => m.status === 'sending');
-
-      // Server messages are confirmed (double check ✓✓)
       const confirmedServer = serverMessages.map(m => ({ ...m, status: 'sent' }));
 
-      // Merge & avoid duplicates
       const finalMessages = [...confirmedServer];
       pendingOptimistic.forEach(pMsg => {
         const exists = confirmedServer.some(sMsg => sMsg.text === pMsg.text && sMsg.sender === pMsg.sender && sMsg.timestamp === pMsg.timestamp);
-        if (!exists) {
-          finalMessages.push(pMsg);
-        }
+        if (!exists) finalMessages.push(pMsg);
       });
 
       localMessageCache[roomId] = finalMessages;
       renderMessages(finalMessages);
     }
 
-    // --- RENDER MESSAGES WITH WHATSAPP CHECKMARKS ---
     function renderMessages(msgList, forceScrollBottom = false) {
       const area = document.getElementById('chatMessages');
       const isNearBottom = area.scrollHeight - area.scrollTop <= area.clientHeight + 100;
@@ -1069,9 +1045,6 @@
         const row = document.createElement('div');
         row.className = `msg-wrap ${isMe ? 'out' : 'in'}`;
 
-        // Checkmark Logic:
-        // 'sending' = Single grey checkmark (✓)
-        // 'sent'    = Double blue checkmark (✓✓)
         let checkmarkHTML = '';
         if (isMe) {
           if (m.status === 'sending') {
